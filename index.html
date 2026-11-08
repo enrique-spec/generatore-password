@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#21184f">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dlwBevFd3YESHOlmqna+EngrSK8UO9WrkgxeNrxuIMo='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-06NyilU3RRPRgKEpdVWN4Ke1ip682VnokjcgwHux8o8='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'">
 <title>La tua chiave digitale</title>
 <style>
 :root{color-scheme:light;--bg:#f1edfb;--card:#fff;--ink:#241a43;--muted:#56496e;--line:#d8cdeb;--soft:#f3edff;--accent:#5936b8;--green:#076e60;--red:#a02e51}
@@ -17,6 +17,14 @@ nav,.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}nav{margin:1
 button,input,textarea{font:inherit;border-radius:10px;border:1px solid var(--line);color:var(--ink);background:var(--card)}button{padding:8px 13px;min-height:42px;font-weight:650;cursor:pointer}button:disabled{opacity:.5;cursor:default}button.primary,button[aria-pressed=true]{background:var(--accent);color:#fff;border-color:transparent}button.green{background:var(--green);color:#fff;border-color:transparent}button.danger{color:var(--red)}.dark button.danger{color:#ff99b5}
 input,textarea{width:100%;padding:9px 12px;min-width:0}input[type=checkbox]{width:auto;margin:0;accent-color:var(--accent)}input[type=range]{padding:0;accent-color:var(--accent)}:focus-visible{outline:3px solid #9476e5;outline-offset:2px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:19px;padding:clamp(15px,4vw,26px);margin-bottom:12px}.help,footer,.status{color:var(--muted);font-size:.9rem}.status{min-height:1.5em;margin-top:9px}.status:empty{margin:0;min-height:0}
+.password-field{display:flex;flex-wrap:wrap;gap:8px}.password-field input{flex:1 1 9rem;width:auto}.password-field button{flex:none;font-size:.9rem}.stack label{display:block}
+#vault-status[data-state]{border:1px solid currentColor;border-radius:10px;padding:8px 11px;font-weight:650;margin-bottom:10px}
+#vault-status[data-state="success"]{color:#125d3b;background:#e8f8ee}
+#vault-status[data-state="success"]::before{content:"";display:inline-block;width:.68em;height:.68em;margin-right:.5em;border-radius:50%;background:currentColor}
+#vault-status[data-state="error"]{color:#a02540;background:#fff0f3}
+.dark #vault-status[data-state="success"]{color:#a6f3c3;background:#153527}
+.dark #vault-status[data-state="error"]{color:#ffc0ce;background:#411f30}
+#access input[aria-invalid="true"]{border-color:#bc4160}
 fieldset{border:0;padding:0;margin:15px 0}legend,label{font-weight:650}legend{margin-bottom:8px}.options,.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.options label{display:flex;align-items:center;gap:7px;padding:8px;background:var(--soft);border-radius:9px;font-size:.91rem}.length{display:grid;grid-template-columns:minmax(0,1fr) 82px;gap:12px;align-items:center;margin-top:6px}.stack{display:grid;gap:10px}.wide{grid-column:1/-1}.full{width:100%}label>input,label>textarea{display:block;margin-top:4px}label>input[type=checkbox]{display:inline;margin:0}textarea{resize:vertical}#generated,#secret{font-family:ui-monospace,monospace}#generated{margin:5px 0 10px}.vault-top{display:flex;align-items:start;justify-content:space-between;gap:10px;flex-wrap:wrap}.entries{list-style:none;margin:10px 0 16px;padding:0;display:grid;gap:5px;max-height:235px;overflow:auto}.entries button{width:100%;text-align:left;background:var(--soft);overflow-wrap:anywhere}.entries button[aria-current=true]{border-color:var(--accent);box-shadow:inset 3px 0 var(--accent)}.entries small{display:block;color:var(--muted)}footer{text-align:center;padding:4px 0 16px}
 @media(max-width:420px){nav #theme{margin-left:0}.fields{grid-template-columns:1fr}.options label{font-size:.82rem;padding:7px}header{gap:11px}.mark{width:40px;height:40px}}
 </style>
@@ -36,15 +44,21 @@ fieldset{border:0;padding:0;margin:15px 0}legend,label{font-weight:650}legend{ma
 <h2 id="vault-title">La mia cassaforte</h2>
 <div id="locked" class="stack"><p id="vault-help" class="help">L’archivio resta cifrato in questo browser. Conserva un backup: se cancelli i dati del sito, potresti perdere l’archivio.</p>
 <form id="access" class="stack" hidden novalidate>
-<label for="master">Password principale</label>
+<div><label for="master">Password principale</label>
+<div class="password-field">
 <input id="master" type="password" required maxlength="1024" autocomplete="off" spellcheck="false" autocapitalize="none" aria-describedby="access-help vault-status">
-<label id="confirm-label" for="confirm" hidden>Ripeti la password principale
-<input id="confirm" type="password" maxlength="1024" autocomplete="off" spellcheck="false" autocapitalize="none" disabled>
-</label>
+<button id="show-master" type="button" aria-controls="master">Mostra password</button>
+</div></div>
+<div id="confirm-label" hidden><label for="confirm">Ripeti la password principale</label>
+<div class="password-field">
+<input id="confirm" type="password" maxlength="1024" autocomplete="off" spellcheck="false" autocapitalize="none" aria-describedby="access-help vault-status" disabled>
+<button id="show-confirm" type="button" aria-controls="confirm" aria-label="Mostra conferma della password">Mostra password</button>
+</div></div>
 <p id="access-help" class="help"></p>
-<div class="actions"><button id="enter" class="primary" type="submit">Sblocca cassaforte</button><button id="show-master" type="button" aria-pressed="false">Mostra password</button><button id="cancel-import" type="button" hidden>Annulla ripristino</button></div>
+<div class="actions"><button id="enter" class="primary" type="submit">Sblocca cassaforte</button><button id="cancel-import" type="button" hidden>Annulla ripristino</button></div>
 </form>
 <button id="import" type="button" hidden>Ripristina backup web</button><input id="file" type="file" accept=".vaultweb,application/json" hidden></div>
+<p class="status" id="vault-status" role="status" tabindex="-1"></p>
 <div id="unlocked" hidden>
 <div class="vault-top"><h3>Voci salvate</h3><div class="actions"><button id="export" type="button">Esporta backup</button><button id="lock" type="button">Blocca</button></div></div>
 <label for="search">Cerca per servizio, utente o email</label><input id="search" type="search" autocomplete="off">
@@ -53,7 +67,6 @@ fieldset{border:0;padding:0;margin:15px 0}legend,label{font-weight:650}legend{ma
 <div class="fields"><label>Servizio<input id="service" required maxlength="256" autocomplete="off"></label><label>Utente o email<input id="user" maxlength="512" autocomplete="off"></label><label class="wide">Password<input id="secret" type="password" required maxlength="4096" autocomplete="off" spellcheck="false"></label><label class="wide">Nota<textarea id="note" rows="2" maxlength="8192" autocomplete="off"></textarea></label></div>
 <div class="actions"><button id="save" class="primary" type="submit">Salva voce</button><button id="new" type="button">Nuova voce</button><button id="show-secret" type="button">Mostra</button><button id="copy-secret" class="green" type="button">Copia</button><button id="delete" class="danger" type="button" disabled>Elimina</button></div>
 </form></div>
-<p class="status" id="vault-status" role="status"></p>
 </section>
 <footer>Le password restano sul dispositivo. Nessun account, nessuna sincronizzazione automatica.</footer>
 </main>
@@ -65,9 +78,19 @@ const FORMAT='chiave-digitale-web-v1', ROUNDS=600000, MAX=4000000, IDLE=300000;
 const aad=enc.encode(FORMAT);
 const path=location.pathname.replace(/index\.html$/,'').replace(/\/$/,'');
 const pools={upper:'ABCDEFGHIJKLMNOPQRSTUVWXYZ',lower:'abcdefghijklmnopqrstuvwxyz',digits:'0123456789',symbols: Array.from({length:94},(_,i)=>String.fromCharCode(i+33)).filter(c=>!/[A-Za-z0-9]/.test(c)).join('')};
-let revealMaster=false;
 let db, stored=null, importBlob=null, current=null, editing=null, pending='', busy=false, last=0, epoch=0;
-const say=(id,msg)=>{$(id).textContent=msg};
+function say(id,msg,state='',invalid=''){
+  const el=$(id);
+  if(id==='vault-status'){
+    if(state)el.dataset.state=state;
+    else delete el.dataset.state;
+    for(const field of ['master','confirm']){
+      if(field===invalid)$(field).setAttribute('aria-invalid','true');
+      else $(field).removeAttribute('aria-invalid');
+    }
+  }
+  el.textContent=msg;
+}
 const rand=n=>crypto.getRandomValues(new Uint8Array(n));
 const to64=bytes=>{let s='';for(let i=0;i<bytes.length;i+=8192)s+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(s)};
 const from64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
@@ -176,6 +199,7 @@ function view(){
   $('confirm').disabled=!creating||busy;
   $('master').disabled=busy;
   $('show-master').disabled=busy;
+  $('show-confirm').disabled=!creating||busy;
   say('access-help',importBlob?'Usa la password principale del backup.':creating?
     'Scegli almeno 16 caratteri e ripeti la password qui sopra.':
     'Inserisci la stessa password che hai scelto alla creazione.');
@@ -187,13 +211,22 @@ function view(){
   for(const id of ['save','new','export','search'])$(id).disabled=busy;
   $('delete').disabled=busy||editing===null;
 }
-function setMasterVisibility(visible){
-  revealMaster=visible;
-  for(const id of ['master','confirm'])$(id).type=visible?'text':'password';
-  $('show-master').textContent=visible?'Nascondi password':'Mostra password';
-  $('show-master').setAttribute('aria-pressed',String(visible));
+function setAccessVisibility(id,visible){
+  $(id).type=visible?'text':'password';
+  const action=visible?'Nascondi':'Mostra';
+  const button=$('show-'+id);
+  button.textContent=action+' password';
+  if(id==='confirm')button.setAttribute('aria-label',action+' password di conferma');
 }
-$('show-master').onclick=()=>setMasterVisibility(!revealMaster);
+function hideAccessPasswords(){
+  for(const id of ['master','confirm'])setAccessVisibility(id,false);
+}
+for(const id of ['master','confirm']){
+  $('show-'+id).onclick=()=>setAccessVisibility(id,$(id).type==='password');
+  $(id).oninput=()=>{
+    if($('vault-status').dataset.state==='error')say('vault-status','');
+  };
+}
 function clearRecord(){
   editing=null;$('record').reset();mask('secret','show-secret');
   $('delete').disabled=true;
@@ -202,7 +235,7 @@ function clearRecord(){
 function lock(message='Cassaforte bloccata.'){
   ++epoch;current=null;pending='';importBlob=null;clearRecord();
   $('master').value=$('confirm').value=$('search').value='';
-  setMasterVisibility(false);
+  hideAccessPasswords();
   $('file').value='';$('entries').replaceChildren();
   view();say('vault-status',message);
 }
@@ -244,7 +277,7 @@ $('save-generated').onclick=()=>{
   else{pending=$('generated').value;$('master').focus()}
 };
 $('import').onclick=()=>$('file').click();
-$('cancel-import').onclick=()=>{importBlob=null;$('master').value=$('confirm').value='';setMasterVisibility(false);view();say('vault-status','')};
+$('cancel-import').onclick=()=>{importBlob=null;$('master').value=$('confirm').value='';hideAccessPasswords();view();say('vault-status','')};
 $('file').onchange=async()=>{
   const file=$('file').files[0];$('file').value='';
   if(!file||busy)return;
@@ -254,7 +287,7 @@ $('file').onchange=async()=>{
     const raw=await file.text();
     if(token!==epoch||busy||stored!==null||current)return;
     decodeBlob(raw);importBlob=raw;
-    $('master').value=$('confirm').value='';setMasterVisibility(false);view();$('master').focus();
+    $('master').value=$('confirm').value='';hideAccessPasswords();view();$('master').focus();
     say('vault-status','Inserisci la password principale del backup web.');
   }catch{say('vault-status','File non valido. Usa un backup .vaultweb creato dalla versione web.')}
 };
@@ -264,18 +297,18 @@ $('access').onsubmit=async event=>{
   const password=$('master').value,confirm=$('confirm').value,token=epoch,restore=importBlob;
   const creating=stored===null&&!restore;
   if(!password){
-    say('vault-status','Inserisci la password principale.');
+    say('vault-status','Inserisci la password principale.','error','master');
     $('master').focus();return;
   }
   if(creating&&password.trim().length<16){
-    say('vault-status','Usa almeno 16 caratteri per la password principale.');
+    say('vault-status','Usa almeno 16 caratteri per la password principale.','error','master');
     $('master').focus();return;
   }
   if(creating&&password!==confirm){
-    say('vault-status',confirm?'Le password non coincidono. Riprova la conferma.':'Ripeti la password principale nel secondo campo.');
+    say('vault-status',confirm?'Le password non coincidono. Riprova la conferma.':'Ripeti la password principale nel secondo campo.','error','confirm');
     $('confirm').focus();return;
   }
-  busy=true;setMasterVisibility(false);view();say('vault-status','Attendi…');
+  busy=true;hideAccessPasswords();view();say('vault-status','Attendi…');
   try{
     stored=await read();
     if(token!==epoch)return;
@@ -290,15 +323,21 @@ $('access').onsubmit=async event=>{
     if(stored===null){blob=blob??await seal(rows,key,box.salt);if(token!==epoch)return;await commit(null,blob);stored=blob}
     if(token!==epoch)return;
     current={key,salt:box.salt,blob,rows};last=Date.now();importBlob=null;
-    render();say('vault-status',creating?
-      'Cassaforte creata e sbloccata. Ora puoi salvare una voce.':
-      'Cassaforte sbloccata. Si blocca dopo 5 minuti di inattività.');
+    render();
+    say('vault-status', restore?'Backup ripristinato. Cassaforte sbloccata.':
+      creating?'Cassaforte creata e sbloccata.':
+      'Password corretta. Cassaforte sbloccata.', 'success');
   }catch(err){
-    if(token===epoch)say('vault-status',err.name==='OperationError'?'Password principale errata o archivio danneggiato.':err.message||'Impossibile aprire la cassaforte.');
+    if(token===epoch){
+      const rejected=err.name==='OperationError';
+      say('vault-status',rejected?
+        'Password sbagliata. Riprova. Se sei sicuro che sia corretta, l’archivio potrebbe essere danneggiato.':
+        err.message||'Impossibile aprire la cassaforte.', 'error', rejected?'master':'');
+    }
   }finally{
     busy=false;$('master').value=$('confirm').value='';view();
     if(token===epoch){
-      if(current){useGenerated();$('service').focus()}
+      if(current){const target=pending?'service':'vault-status';useGenerated();$(target).focus()}
       else $('master').focus();
     }
   }
