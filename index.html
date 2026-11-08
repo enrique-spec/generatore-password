@@ -1,5 +1,306 @@
 <!doctype html>
-<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#2356a8"><meta name="description" content="Crea password casuali sul tuo dispositivo. Scegli lunghezza e caratteri, poi copia la tua nuova password."><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"><link rel="manifest" href="manifest.webmanifest"><title>La tua chiave digitale</title><link rel="stylesheet" href="style.css"><script src="app.js" defer></script></head>
-<body><main><header><img src="icon-192.png" width="76" height="76" alt=""><div><p class="eyebrow">IL TUO GENERATORE DI PASSWORD</p><h1>La tua chiave digitale</h1><p>Una nuova password. Ogni volta che vuoi.</p></div></header>
-<section class="card"><div class="section-title"><h2>Personalizza la password</h2><button id="theme" class="quiet" type="button" aria-pressed="false">Tema scuro</button></div><label for="length">Lunghezza <span>da 8 a 128 caratteri</span></label><div class="length-row"><input id="range" type="range" min="8" max="128" value="20" aria-label="Lunghezza della password"><input id="length" type="number" min="8" max="128" step="1" value="20" inputmode="numeric"></div><fieldset><legend>Caratteri da utilizzare</legend><div class="options"><label><input type="checkbox" value="upper" checked> Maiuscole <small>A B C</small></label><label><input type="checkbox" value="lower" checked> Minuscole <small>a b c</small></label><label><input type="checkbox" value="digits" checked> Numeri <small>1 2 3</small></label><label><input type="checkbox" value="symbols" checked> Simboli <small>! @ #</small></label></div></fieldset><button id="generate" class="primary" type="button">Genera password <span aria-hidden="true">↗</span></button></section>
-<section class="card result"><p class="eyebrow">LA TUA PASSWORD</p><label class="sr-only" for="password">Password generata</label><input id="password" type="password" readonly placeholder="La tua prossima password è qui" autocomplete="off" spellcheck="false"><div class="actions"><button id="show" type="button" disabled>Mostra password</button><button id="copy" class="green" type="button" disabled>Copia password</button></div><p id="status" role="status" aria-live="polite">Scegli le opzioni e premi Genera password.</p></section><footer>Creata sul tuo dispositivo. Le password non vengono salvate né inviate a un server.</footer></main></body></html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#21184f">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-uVZp3AI7ah+drp3ArEhUkLkpn4M1L5pU5OAYCV1ZCkE='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<title>La tua chiave digitale</title>
+<style>
+:root{color-scheme:light;--bg:#f1edfb;--card:#fff;--ink:#241a43;--muted:#56496e;--line:#d8cdeb;--soft:#f3edff;--accent:#5936b8;--green:#076e60;--red:#a02e51}
+:root.dark{color-scheme:dark;--bg:#151125;--card:#211932;--ink:#f7f0ff;--muted:#cbbddf;--line:#554568;--soft:#302444;--accent:#7449d7;--green:#08756a;--red:#a02e51}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,sans-serif}main{max-width:800px;margin:auto;padding:clamp(12px,4vw,32px)}[hidden]{display:none!important}
+header{display:flex;align-items:center;gap:18px;padding:clamp(18px,5vw,36px);background:linear-gradient(125deg,#21184f,#493285);color:#fff;border-radius:24px;box-shadow:0 10px 30px #27134c20}
+.mark{flex:none;width:48px;height:48px;display:grid;place-items:center;border-radius:14px;background:#ffffff20;color:#72f0db}.mark svg{width:27px;height:27px}
+h1,h2,h3,p{margin:0}h1{font-size:clamp(1.35rem,5vw,2.2rem);line-height:1.12;letter-spacing:-.035em}h2{font-size:1.32rem;margin-bottom:8px}h3{font-size:1.12rem;margin-bottom:8px}header p{color:#eadfff;margin-top:6px;font-size:.9rem}.kicker{color:#81f3df;font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:5px}
+nav,.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}nav{margin:16px 0}nav #theme{margin-left:auto}
+button,input,textarea{font:inherit;border-radius:10px;border:1px solid var(--line);color:var(--ink);background:var(--card)}button{padding:8px 13px;min-height:42px;font-weight:650;cursor:pointer}button:disabled{opacity:.5;cursor:default}button.primary,button[aria-pressed=true]{background:var(--accent);color:#fff;border-color:transparent}button.green{background:var(--green);color:#fff;border-color:transparent}button.danger{color:var(--red)}.dark button.danger{color:#ff99b5}
+input,textarea{width:100%;padding:9px 12px;min-width:0}input[type=checkbox]{width:auto;margin:0;accent-color:var(--accent)}input[type=range]{padding:0;accent-color:var(--accent)}:focus-visible{outline:3px solid #9476e5;outline-offset:2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:19px;padding:clamp(15px,4vw,26px);margin-bottom:12px}.help,footer,.status{color:var(--muted);font-size:.9rem}.status{min-height:1.5em;margin-top:9px}.status:empty{margin:0;min-height:0}
+fieldset{border:0;padding:0;margin:15px 0}legend,label{font-weight:650}legend{margin-bottom:8px}.options,.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.options label{display:flex;align-items:center;gap:7px;padding:8px;background:var(--soft);border-radius:9px;font-size:.91rem}.length{display:grid;grid-template-columns:minmax(0,1fr) 82px;gap:12px;align-items:center;margin-top:6px}.stack{display:grid;gap:10px}.wide{grid-column:1/-1}.full{width:100%}label>input,label>textarea{display:block;margin-top:4px}label>input[type=checkbox]{display:inline;margin:0}textarea{resize:vertical}#generated,#secret{font-family:ui-monospace,monospace}#generated{margin:5px 0 10px}.vault-top{display:flex;align-items:start;justify-content:space-between;gap:10px;flex-wrap:wrap}.entries{list-style:none;margin:10px 0 16px;padding:0;display:grid;gap:5px;max-height:235px;overflow:auto}.entries button{width:100%;text-align:left;background:var(--soft);overflow-wrap:anywhere}.entries button[aria-current=true]{border-color:var(--accent);box-shadow:inset 3px 0 var(--accent)}.entries small{display:block;color:var(--muted)}footer{text-align:center;padding:4px 0 16px}
+@media(max-width:420px){nav #theme{margin-left:0}.fields{grid-template-columns:1fr}.options label{font-size:.82rem;padding:7px}header{gap:11px}.mark{width:40px;height:40px}}
+</style>
+</head>
+<body>
+<main>
+<header><span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 10V7a5 5 0 0 1 10 0v3"/><rect x="4" y="10" width="16" height="12" rx="3"/><path d="M12 15v3"/></svg></span><div><span class="kicker">Informaticadeso</span><h1>La tua chiave digitale</h1><p>Generatore di password e cassaforte personale</p></div></header>
+<nav aria-label="Sezioni"><button id="nav-gen" type="button" aria-pressed="true">Generatore</button><button id="nav-vault" type="button" aria-pressed="false">Cassaforte</button><button id="theme" type="button">Tema scuro</button></nav>
+<section id="generator" aria-labelledby="gen-title">
+<div class="card"><h2 id="gen-title">Personalizza la password</h2><label for="length">Numero di caratteri</label>
+<div class="length"><input id="range" aria-label="Regola il numero di caratteri" type="range" min="8" max="128" value="20"><input id="length" type="number" min="8" max="128" step="1" value="20" inputmode="numeric"></div>
+<fieldset><legend>Caratteri da utilizzare</legend><div class="options"><label><input type="checkbox" value="upper" checked> Maiuscole</label><label><input type="checkbox" value="lower" checked> Minuscole</label><label><input type="checkbox" value="digits" checked> Numeri</label><label><input type="checkbox" value="symbols" checked> Simboli</label></div></fieldset>
+<button id="generate" class="primary full" type="button">Genera password</button></div>
+<div class="card"><label for="generated">Password generata</label><input id="generated" type="password" readonly autocomplete="off" spellcheck="false" placeholder="La tua prossima password è qui"><div class="actions"><button id="show-generated" type="button" disabled>Mostra</button><button id="copy-generated" class="green" type="button" disabled>Copia</button><button id="save-generated" type="button" disabled>Salva in cassaforte</button></div><p class="status" id="gen-status" role="status"></p></div>
+</section>
+<section id="vault" class="card" hidden aria-labelledby="vault-title">
+<h2 id="vault-title">La mia cassaforte</h2>
+<div id="locked" class="stack"><p id="vault-help" class="help">L’archivio resta cifrato in questo browser. Conserva un backup: se cancelli i dati del sito, potresti perdere l’archivio.</p>
+<form id="access" class="stack" hidden><label for="master">Frase principale</label><input id="master" type="password" required maxlength="1024" autocomplete="off" spellcheck="false"><label id="confirm-label" for="confirm" hidden>Ripeti la frase principale<input id="confirm" type="password" maxlength="1024" autocomplete="off" spellcheck="false"></label><div class="actions"><button id="enter" class="primary" type="submit">Sblocca cassaforte</button><button id="cancel-import" type="button" hidden>Annulla ripristino</button></div></form>
+<button id="import" type="button" hidden>Ripristina backup web</button><input id="file" type="file" accept=".vaultweb,application/json" hidden></div>
+<div id="unlocked" hidden>
+<div class="vault-top"><h3>Voci salvate</h3><div class="actions"><button id="export" type="button">Esporta backup</button><button id="lock" type="button">Blocca</button></div></div>
+<label for="search">Cerca per servizio, utente o email</label><input id="search" type="search" autocomplete="off">
+<ul id="entries" class="entries" aria-label="Voci salvate"></ul>
+<form id="record" class="stack">
+<div class="fields"><label>Servizio<input id="service" required maxlength="256" autocomplete="off"></label><label>Utente o email<input id="user" maxlength="512" autocomplete="off"></label><label class="wide">Password<input id="secret" type="password" required maxlength="4096" autocomplete="off" spellcheck="false"></label><label class="wide">Nota<textarea id="note" rows="2" maxlength="8192" autocomplete="off"></textarea></label></div>
+<div class="actions"><button id="save" class="primary" type="submit">Salva voce</button><button id="new" type="button">Nuova voce</button><button id="show-secret" type="button">Mostra</button><button id="copy-secret" class="green" type="button">Copia</button><button id="delete" class="danger" type="button" disabled>Elimina</button></div>
+</form></div>
+<p class="status" id="vault-status" role="status"></p>
+</section>
+<footer>Le password restano sul dispositivo. Nessun account, nessuna sincronizzazione automatica.</footer>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const enc=new TextEncoder(), dec=new TextDecoder('utf-8',{fatal:true});
+const FORMAT='chiave-digitale-web-v1', ROUNDS=600000, MAX=4000000, IDLE=300000;
+const aad=enc.encode(FORMAT);
+const path=location.pathname.replace(/index\.html$/,'').replace(/\/$/,'');
+const pools={upper:'ABCDEFGHIJKLMNOPQRSTUVWXYZ',lower:'abcdefghijklmnopqrstuvwxyz',digits:'0123456789',symbols: Array.from({length:94},(_,i)=>String.fromCharCode(i+33)).filter(c=>!/[A-Za-z0-9]/.test(c)).join('')};
+let db, stored=null, importBlob=null, current=null, editing=null, pending='', busy=false, last=0, epoch=0;
+const say=(id,msg)=>{$(id).textContent=msg};
+const rand=n=>crypto.getRandomValues(new Uint8Array(n));
+const to64=bytes=>{let s='';for(let i=0;i<bytes.length;i+=8192)s+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(s)};
+const from64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+function decodeBlob(raw){
+  if(typeof raw!=='string'||raw.length>MAX)throw Error('Dimensione non valida');
+  const obj=JSON.parse(raw);
+  if(obj?.format!==FORMAT||typeof obj.salt!=='string'||typeof obj.iv!=='string'||typeof obj.data!=='string')throw Error('Formato non valido');
+  const salt=from64(obj.salt),iv=from64(obj.iv),data=from64(obj.data);
+  if(salt.length!==16||iv.length!==12||data.length<16)throw Error('Archivio non valido');
+  return {salt,iv,data};
+}
+async function derive(password,salt){
+  const base=await crypto.subtle.importKey('raw',enc.encode(password),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:ROUNDS,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+const params=iv=>({name:'AES-GCM',iv,additionalData:aad,tagLength:128});
+async function seal(rows,key,salt){
+  const iv=rand(12),data=new Uint8Array(await crypto.subtle.encrypt(params(iv),key,enc.encode(JSON.stringify(rows))));
+  const raw=JSON.stringify({format:FORMAT,salt:to64(salt),iv:to64(iv),data:to64(data)});
+  if(raw.length>MAX)throw Error('Archivio troppo grande');
+  return raw;
+}
+async function decrypt({iv,data},key){
+  const rows=JSON.parse(dec.decode(await crypto.subtle.decrypt(params(iv),key,data)));
+  if(!Array.isArray(rows)||!rows.every(r=>r&&['id','service','user','secret','note'].every(k=>typeof r[k]==='string')&&r.service&&r.secret)||new Set(rows.map(r=>r.id)).size!==rows.length)throw Error('Voci non valide');
+  return rows;
+}
+function openDB(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open(FORMAT+':'+path,1);
+    req.onupgradeneeded=()=>req.result.createObjectStore('encrypted');
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+}
+function read(){
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction('encrypted','readonly'),req=tx.objectStore('encrypted').get('vault');
+    req.onsuccess=()=>resolve(req.result??null);
+    tx.onabort=()=>reject(tx.error);
+  });
+}
+function commit(expected,next){
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction('encrypted','readwrite'),store=tx.objectStore('encrypted'),req=store.get('vault');
+    let changed=false;
+    req.onsuccess=()=>{
+      if((req.result??null)!==expected){changed=true;tx.abort();return}
+      store.put(next,'vault');
+    };
+    tx.oncomplete=()=>resolve();
+    tx.onabort=()=>reject(Error(changed?'Archivio modificato in un’altra scheda. Blocca e riapri la cassaforte.':'Salvataggio non riuscito. Controlla lo spazio disponibile nel browser.'));
+  });
+}
+function section(name){
+  $('generator').hidden=name!=='gen';$('vault').hidden=name!=='vault';
+  $('nav-gen').setAttribute('aria-pressed',String(name==='gen'));
+  $('nav-vault').setAttribute('aria-pressed',String(name==='vault'));
+}
+$('nav-gen').onclick=()=>section('gen');$('nav-vault').onclick=()=>section('vault');
+let dark=false;
+try{dark=localStorage.getItem(FORMAT+':tema')==='dark'}catch{}
+function theme(){
+  document.documentElement.classList.toggle('dark',dark);
+  $('theme').textContent=dark?'Tema chiaro':'Tema scuro';
+  $('theme').setAttribute('aria-label',$('theme').textContent);
+}
+theme();
+$('theme').onclick=()=>{dark=!dark;theme();try{localStorage.setItem(FORMAT+':tema',dark?'dark':'light')}catch{}};
+$('range').oninput=()=>{$('length').value=$('range').value};
+$('length').oninput=()=>{const n=Number($('length').value);if(Number.isInteger(n)&&n>=8&&n<=128)$('range').value=n};
+function randomIndex(n){
+  const max=Math.floor(2**32/n)*n,buffer=new Uint32Array(1);
+  do{crypto.getRandomValues(buffer)}while(buffer[0]>=max);
+  return buffer[0]%n;
+}
+$('generate').onclick=()=>{
+  const len=Number($('length').value);
+  const groups=[...document.querySelectorAll('#generator input[type=checkbox]:checked')].map(el=>pools[el.value]);
+  if(!Number.isInteger(len)||len<8||len>128){say('gen-status','Inserisci un numero intero da 8 a 128.');return}
+  if(!groups.length){say('gen-status','Seleziona almeno un tipo di carattere.');return}
+  const alphabet=groups.join('');let result;
+  do{result=Array.from({length:len},()=>alphabet[randomIndex(alphabet.length)]).join('')}
+  while(!groups.every(g=>[...result].some(c=>g.includes(c))));
+  $('generated').value=result;mask('generated','show-generated');
+  for(const id of ['show-generated','copy-generated','save-generated'])$(id).disabled=false;
+  say('gen-status',`Password di ${len} caratteri generata.`);
+};
+function mask(id,button){$(id).type='password';$(button).textContent='Mostra'}
+function show(id,button){if(!$(id).value)return;const visible=$(id).type==='password';$(id).type=visible?'text':'password';$(button).textContent=visible?'Nascondi':'Mostra'}
+async function copy(id,status){
+  if(!$(id).value)return;
+  try{await navigator.clipboard.writeText($(id).value);say(status,'Password copiata negli appunti.')}
+  catch{say(status,'Copia non disponibile. Usa Mostra e copia dal menu del dispositivo.')}
+}
+$('show-generated').onclick=()=>show('generated','show-generated');
+$('copy-generated').onclick=()=>copy('generated','gen-status');
+$('show-secret').onclick=()=>show('secret','show-secret');
+$('copy-secret').onclick=()=>copy('secret','vault-status');
+function view(){
+  const creating=stored===null&&!importBlob;
+  $('locked').hidden=!!current;$('unlocked').hidden=!current;
+  $('access').hidden=!db;
+  $('confirm-label').hidden=!creating;
+  $('confirm').required=creating;
+  $('enter').textContent=importBlob?'Ripristina e sblocca':creating?'Crea cassaforte':'Sblocca cassaforte';
+  $('enter').disabled=busy;
+  $('import').hidden=stored!==null||!!importBlob||!db;
+  $('import').disabled=busy;
+  $('cancel-import').hidden=!importBlob;$('cancel-import').disabled=busy;
+  for(const id of ['save','new','export','search'])$(id).disabled=busy;
+  $('delete').disabled=busy||editing===null;
+}
+function clearRecord(){
+  editing=null;$('record').reset();mask('secret','show-secret');
+  $('delete').disabled=true;
+  for(const b of $('entries').querySelectorAll('button'))b.removeAttribute('aria-current');
+}
+function lock(message='Cassaforte bloccata.'){
+  ++epoch;current=null;pending='';importBlob=null;clearRecord();
+  $('master').value=$('confirm').value=$('search').value='';
+  $('file').value='';$('entries').replaceChildren();
+  view();say('vault-status',message);
+}
+function checkIdle(){
+  if(current&&Date.now()-last>=IDLE){lock('Cassaforte bloccata dopo 5 minuti di inattività.');return true}
+  return false;
+}
+function interact(){if(!checkIdle()&&current)last=Date.now()}
+for(const event of ['pointerdown','keydown','input'])document.addEventListener(event,interact,{capture:true});
+document.addEventListener('visibilitychange',checkIdle);
+window.addEventListener('focus',checkIdle);
+window.addEventListener('pagehide',()=>{lock();$('generated').value='';mask('generated','show-generated');for(const id of ['show-generated','copy-generated','save-generated'])$(id).disabled=true;});
+setInterval(checkIdle,1000);
+$('lock').onclick=()=>lock();
+function render(){
+  const list=$('entries');list.replaceChildren();
+  const q=$('search').value.trim().toLocaleLowerCase('it');
+  for(const row of current?.rows??[]){
+    if(!(row.service+' '+row.user).toLocaleLowerCase('it').includes(q))continue;
+    const li=document.createElement('li'),btn=document.createElement('button');
+    btn.type='button';btn.textContent=row.service;
+    if(row.user){const detail=document.createElement('small');detail.textContent=row.user;btn.append(detail)}
+    if(row.id===editing)btn.setAttribute('aria-current','true');
+    btn.onclick=()=>{if(busy||!current||checkIdle())return;editing=row.id;for(const k of ['service','user','secret','note'])$(k).value=row[k];mask('secret','show-secret');view();render()};
+    li.append(btn);list.append(li);
+  }
+  if(!list.children.length){const li=document.createElement('li');li.className='help';li.textContent=q?'Nessuna voce corrisponde.':'Non hai ancora salvato voci.';list.append(li)}
+}
+$('search').oninput=render;
+$('new').onclick=()=>{clearRecord();$('service').focus()};
+function useGenerated(){
+  if(pending){clearRecord();$('secret').value=pending;pending='';$('service').focus()}
+}
+$('save-generated').onclick=()=>{
+  section('vault');
+  if(!$('generated').value||!db)return;
+  pending=$('generated').value;
+  if(current&&!checkIdle()){useGenerated();say('vault-status','Indica il servizio e premi Salva voce.')}
+  else{pending=$('generated').value;$('master').focus()}
+};
+$('import').onclick=()=>$('file').click();
+$('cancel-import').onclick=()=>{importBlob=null;$('master').value='';view();say('vault-status','')};
+$('file').onchange=async()=>{
+  const file=$('file').files[0];$('file').value='';
+  if(!file||busy)return;
+  const token=epoch;
+  try{
+    if(file.size>MAX)throw Error();
+    const raw=await file.text();
+    if(token!==epoch||busy||stored!==null||current)return;
+    decodeBlob(raw);importBlob=raw;
+    $('master').value=$('confirm').value='';view();$('master').focus();
+    say('vault-status','Inserisci la frase principale del backup web.');
+  }catch{say('vault-status','File non valido. Usa un backup .vaultweb creato dalla versione web.')}
+};
+$('access').onsubmit=async event=>{
+  event.preventDefault();
+  if(busy||!db||current)return;
+  const password=$('master').value,confirm=$('confirm').value,token=epoch,restore=importBlob;
+  busy=true;view();say('vault-status','Attendi…');
+  try{
+    stored=await read();
+    if(token!==epoch)return;
+    if(restore&&stored!==null){importBlob=null;throw Error('C’è già un archivio in questo browser. Ripristino annullato.')}
+    let blob=restore??stored;
+    if(blob===null&&(password.trim().length<16||password!==confirm))throw Error('Scegli almeno 16 caratteri e ripeti la frase identica.');
+    const box=blob===null?{salt:rand(16)}:decodeBlob(blob);
+    const key=await derive(password,box.salt);
+    if(token!==epoch)return;
+    const rows=blob===null?[]:await decrypt(box,key);
+    if(token!==epoch)return;
+    if(stored===null){blob=blob??await seal(rows,key,box.salt);if(token!==epoch)return;await commit(null,blob);stored=blob}
+    if(token!==epoch)return;
+    current={key,salt:box.salt,blob,rows};last=Date.now();importBlob=null;
+    render();say('vault-status','Cassaforte sbloccata. Si blocca dopo 5 minuti di inattività.');
+  }catch(err){
+    if(token===epoch)say('vault-status',err.name==='OperationError'?'Frase principale errata o archivio danneggiato.':err.message||'Impossibile aprire la cassaforte.');
+  }finally{
+    busy=false;$('master').value=$('confirm').value='';view();
+    if(token===epoch&&current)useGenerated();
+  }
+};
+async function persist(rows,msg){
+  if(!current||busy||checkIdle())return;
+  const session=current;busy=true;view();
+  try{
+    const blob=await seal(rows,session.key,session.salt);
+    if(current!==session||checkIdle())return;
+    await commit(session.blob,blob);stored=blob;
+    if(current!==session)return;
+    Object.assign(session,{blob,rows});clearRecord();render();say('vault-status',msg);
+  }catch(err){if(current===session)say('vault-status',err.message||'Impossibile salvare.')}
+  finally{busy=false;view()}
+}
+$('record').onsubmit=event=>{
+  event.preventDefault();
+  if(!current||busy||checkIdle())return;
+  const service=$('service').value.trim(),secret=$('secret').value;
+  if(!service||!secret){say('vault-status','Servizio e password sono obbligatori.');return}
+  const record={id:editing??to64(rand(16)),service,user:$('user').value,secret,note:$('note').value};
+  const rows=editing===null?[...current.rows,record]:current.rows.map(r=>r.id===editing?record:r);
+  void persist(rows,'Voce salvata nella cassaforte cifrata.');
+};
+$('delete').onclick=()=>{
+  if(!current||busy||editing===null||checkIdle())return;
+  const session=current,id=editing;
+  if(window.confirm('Eliminare la voce selezionata?')&&session===current)void persist(session.rows.filter(r=>r.id!==id),'Voce eliminata.');
+};
+$('export').onclick=()=>{
+  if(!current||busy||checkIdle())return;
+  const url=URL.createObjectURL(new Blob([current.blob],{type:'application/json'}));
+  const link=document.createElement('a');link.href=url;link.download='backup-chiave-digitale.vaultweb';
+  document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
+  say('vault-status','Backup cifrato esportato. Per riaprirlo serve la stessa frase principale.');
+};
+(async()=>{
+  if(!globalThis.crypto?.subtle){say('vault-status','Apri l’app tramite HTTPS per usare la cassaforte.');return}
+  try{db=await openDB();stored=await read();view()}
+  catch{db=null;view();say('vault-status','Il browser non consente il salvataggio locale. Puoi usare il generatore.')}
+})();
+
+</script>
+</body>
+</html>
